@@ -1,0 +1,278 @@
+{# eventi/templates/eventi/report_selection.html #}
+{% extends 'eventi/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Genera Report" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-6">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold mb-2">{% trans "Genera Report" %}</h1>
+        <p class="text-lg opacity-70">{% trans "Seleziona gli eventi da includere nel report e il formato di esportazione." %}</p>
+    </div>
+    
+    <div class="mb-6">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">{% trans "Filtri" %}</h2>
+                <form method="get" action="{% url 'report_selection' %}" class="grid md:grid-cols-3 gap-6">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">{% trans "Categoria" %}</span>
+                        </label>
+                        <select name="categoria" id="categoria" class="select select-bordered w-full">
+                            <option value="">{% trans "Tutte le categorie" %}</option>
+                            {% for value, label in categorias %}
+                                <option value="{{ value }}" {% if active_filters.categoria == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">{% trans "Paese" %}</span>
+                        </label>
+                        <select name="paese" id="paese" class="select select-bordered w-full">
+                            <option value="">{% trans "Tutti i paesi" %}</option>
+                            {% for value, label in paesi %}
+                                <option value="{{ value }}" {% if active_filters.paese == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">{% trans "Anno" %}</span>
+                        </label>
+                        <select name="year" id="year" class="select select-bordered w-full">
+                            <option value="">{% trans "Tutti gli anni" %}</option>
+                            {% for year in years %}
+                                <option value="{{ year }}" {% if active_filters.year == year|stringformat:"i" %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="md:col-span-3 flex justify-end space-x-2">
+                        <a href="{% url 'report_selection' %}" class="btn btn-outline gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            {% trans "Reimposta" %}
+                        </a>
+                        <button type="submit" class="btn btn-primary text-white gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                            </svg>
+                            {% trans "Filtra" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <form method="post" action="{% url 'generate_report' %}">
+        {% csrf_token %}
+        
+        <div class="mb-6">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body p-0">
+                    <div class="px-6 py-4 bg-base-200 flex justify-between items-center">
+                        <h2 class="card-title">{% trans "Eventi disponibili" %}</h2>
+                        <div class="form-control">
+                            <label class="label cursor-pointer">
+                                <input class="checkbox" type="checkbox" id="select-all">
+                                <span class="label-text ml-2">{% trans "Seleziona tutti" %}</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        {% if events %}
+                            <div class="overflow-x-auto">
+                                <table class="table table-zebra w-full">
+                                    <thead>
+                                        <tr>
+                                            <th class="w-12"></th>
+                                            <th class="w-1/3">{% trans "Titolo" %}</th>
+                                            <th class="w-1/5">{% trans "Data" %}</th>
+                                            <th class="w-1/5">{% trans "Luogo" %}</th>
+                                            <th class="w-1/5">{% trans "Categoria" %}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for event in events %}
+                                            <tr>
+                                                <td class="text-center">
+                                                    <input class="checkbox event-checkbox" type="checkbox" name="event_ids" value="{{ event.id }}" id="event-{{ event.id }}">
+                                                </td>
+                                                <td class="break-words">
+                                                    <label for="event-{{ event.id }}" class="block cursor-pointer font-medium hover:text-primary">
+                                                        {{ event.titolo }}
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    {{ event.data_inizio|date:"d/m/Y" }}
+                                                    {% if event.data_fine and event.data_fine != event.data_inizio %}
+                                                        - {{ event.data_fine|date:"d/m/Y" }}
+                                                    {% endif %}
+                                                </td>
+                                                <td class="break-words">{{ event.citta }}, {{ event.paese }}</td>
+                                                <td>
+                                                    <span class="break-words">
+                                                        {{ event.categoria }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="p-6 text-center opacity-70">
+                                <p>{% trans "Nessun evento trovato con i filtri selezionati." %}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title">{% trans "Opzioni di esportazione" %}</h2>
+                    <div class="md:w-1/2">
+                        <div class="mb-4">
+                            <label class="label">
+                                <span class="label-text font-medium">{% trans "Formato" %}</span>
+                            </label>
+                            <div class="flex flex-col gap-2">
+                                <div class="form-control">
+                                    <label class="label cursor-pointer justify-start">
+                                        <input class="radio radio-primary" type="radio" name="export_format" id="format-docx" value="docx" checked>
+                                        <span class="label-text ml-2 flex items-center">
+                                            <svg class="w-5 h-5 mr-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
+                                            {% trans "Word (DOCX)" %}
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="form-control">
+                                    <label class="label cursor-pointer justify-start">
+                                        <input class="radio radio-primary" type="radio" name="export_format" id="format-excel" value="excel">
+                                        <span class="label-text ml-2 flex items-center">
+                                            <svg class="w-5 h-5 mr-1 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
+                                            {% trans "Excel (XLSX)" %}
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-control">
+                                <label class="label cursor-pointer justify-start">
+                                    <input class="checkbox checkbox-primary" type="checkbox" id="save-to-storage" name="save_to_storage" value="true">
+                                    <span class="label-text ml-2">{% trans "Salva anche nel cloud storage" %}</span>
+                                </label>
+                                <div class="ml-6">
+                                    <span class="text-xs opacity-60">{% trans "Il file verrà salvato come 'report_YYYYMMDD_HHMMSS.xlsx' nel cloud storage" %}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-between space-x-2">
+            <div>
+                {% if user.is_authenticated %}
+                <a href="{% url 'report_files' %}" class="btn btn-outline gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                    </svg>
+                    {% trans "Gestisci Report Salvati" %}
+                </a>
+                {% endif %}
+            </div>
+            
+            <div class="flex space-x-2">
+                <a href="{% url 'event_list' %}" class="btn btn-outline gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    {% trans "Torna alla lista" %}
+                </a>
+                <button type="submit" class="btn btn-primary text-white gap-2" id="generate-report-btn" disabled>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    {% trans "Genera Report" %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAll = document.getElementById('select-all');
+        const eventCheckboxes = document.querySelectorAll('.event-checkbox');
+        const generateBtn = document.getElementById('generate-report-btn');
+        const formatExcel = document.getElementById('format-excel');
+        const saveToStorage = document.getElementById('save-to-storage');
+        
+        // Select all functionality
+        selectAll.addEventListener('change', function() {
+            eventCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateGenerateButton();
+        });
+        
+        // Individual checkbox change
+        eventCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectAll();
+                updateGenerateButton();
+            });
+        });
+        
+        // Format change events
+        formatExcel.addEventListener('change', function() {
+            // Enable storage option only for Excel format
+            saveToStorage.disabled = !this.checked;
+            if (!this.checked) {
+                saveToStorage.checked = false;
+            }
+        });
+        
+        // Update select all checkbox state
+        function updateSelectAll() {
+            const allChecked = Array.from(eventCheckboxes).every(checkbox => checkbox.checked);
+            const someChecked = Array.from(eventCheckboxes).some(checkbox => checkbox.checked);
+            
+            selectAll.checked = allChecked;
+            selectAll.indeterminate = someChecked && !allChecked;
+        }
+        
+        // Enable/disable generate button
+        function updateGenerateButton() {
+            const anyChecked = Array.from(eventCheckboxes).some(checkbox => checkbox.checked);
+            generateBtn.disabled = !anyChecked;
+        }
+        
+        // Initialize state
+        updateSelectAll();
+        updateGenerateButton();
+        
+        // Initialize save to storage checkbox state
+        saveToStorage.disabled = !formatExcel.checked;
+    });
+</script>
+{% endblock %}

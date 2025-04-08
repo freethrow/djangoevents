@@ -1,0 +1,309 @@
+{% extends 'eventi/base.html' %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block title %}{% if form.instance.pk %}{% trans "Modifica Evento" %}{% else %}{% trans "Crea Nuovo Evento" %}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <!-- Page header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold">
+            {% if form.instance.pk %}
+                {% trans "Modifica Evento" %}
+            {% else %}
+                {% trans "Crea Nuovo Evento" %}
+            {% endif %}
+        </h1>
+        <p class="mt-2 text-sm opacity-70">
+            {% if form.instance.pk %}
+                {% trans "Aggiorna i dettagli dell'evento esistente." %}
+            {% else %}
+                {% trans "Inserisci i dettagli per creare un nuovo evento." %}
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Form card -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-error mb-6">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% for field in form.hidden_fields %}
+                    {{ field }}
+                {% endfor %}
+                
+                <!-- Main Form -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Title field -->
+                    <div class="md:col-span-2">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">
+                                    {{ form.titolo.label }}{% if form.titolo.field.required %} <span class="text-error">*</span>{% endif %}
+                                </span>
+                            </label>
+                            {% render_field form.titolo class="input input-bordered w-full" %}
+                            {% for error in form.titolo.errors %}
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ error }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Category and Office -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.categoria.label }}{% if form.categoria.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.categoria class="select select-bordered w-full" %}
+                        {% for error in form.categoria.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.office.label }}{% if form.office.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.office class="select select-bordered w-full" %}
+                        {% for error in form.office.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Dates section -->
+                    <div class="md:col-span-2">
+                        <div class="divider">{% trans "Date e luogo" %}</div>
+                    </div>
+                    
+                    <!-- Dates -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.data_inizio.label }}{% if form.data_inizio.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.data_inizio class="input input-bordered w-full" %}
+                        {% for error in form.data_inizio.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.data_fine.label }}{% if form.data_fine.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.data_fine class="input input-bordered w-full" %}
+                        {% for error in form.data_fine.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Location -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.paese.label }}{% if form.paese.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.paese class="select select-bordered w-full" %}
+                        {% for error in form.paese.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.citta.label }}{% if form.citta.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.citta class="input input-bordered w-full" %}
+                        {% for error in form.citta.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Additional details -->
+                    <div class="md:col-span-2">
+                        <div class="divider">{% trans "Dettagli aggiuntivi" %}</div>
+                    </div>
+
+                    <!-- Sector and Type -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.settore.label }}{% if form.settore.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.settore class="select select-bordered w-full" %}
+                        {% for error in form.settore.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.tipologia.label }}{% if form.tipologia.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.tipologia class="input input-bordered w-full" %}
+                        {% for error in form.tipologia.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="md:col-span-2">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">
+                                    {{ form.descrizione.label }}{% if form.descrizione.field.required %} <span class="text-error">*</span>{% endif %}
+                                </span>
+                            </label>
+                            {% render_field form.descrizione class="textarea textarea-bordered h-32" %}
+                            {% for error in form.descrizione.errors %}
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ error }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Public checkbox -->
+                    <div class="md:col-span-2">
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start">
+                                {% render_field form.public class="checkbox" %}
+                                <span class="label-text ml-2">{{ form.public.label }}</span>
+                            </label>
+                            {% for error in form.public.errors %}
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ error }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Privatistica checkbox -->
+                    <div class="md:col-span-2">
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start">
+                                {% render_field form.privatistica class="checkbox" %}
+                                <span class="label-text ml-2">{{ form.privatistica.label }}</span>
+                            </label>
+                            {% for error in form.privatistica.errors %}
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ error }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+
+                    <!-- File upload -->
+                    {% if form.files %}
+                    <div class="md:col-span-2">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">
+                                    {{ form.files.label }}{% if form.files.field.required %} <span class="text-error">*</span>{% endif %}
+                                </span>
+                            </label>
+                            <div class="bg-base-200 rounded-lg p-4">
+                                {% render_field form.files class="file-input file-input-bordered w-full" %}
+                            </div>
+                            {% for error in form.files.errors %}
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ error }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Existing files -->
+                {% if event_files %}
+                <div class="mt-8">
+                    <h3 class="text-lg font-medium mb-3">{% trans "File esistenti" %}</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for file in event_files %}
+                            <div class="card bg-base-200">
+                                <div class="card-body p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-medium">{{ file.title }}</h4>
+                                            {% if file.description %}
+                                                <p class="text-sm opacity-70 mt-1">{{ file.description }}</p>
+                                            {% endif %}
+                                            <p class="text-xs opacity-50 mt-2">{% trans "Caricato il" %} {{ file.created_at|date:"d/m/Y" }}</p>
+                                        </div>
+                                        <div class="flex space-x-3">
+                                            <a href="{{ file.file.url }}" class="link link-primary" target="_blank">{% trans "Scarica" %}</a>
+                                            <form method="post" action="{% url 'delete_file' event.id file.id %}" class="inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="link link-error">{% trans "Elimina" %}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Form actions -->
+                <div class="divider mt-8"></div>
+                <div class="flex justify-end space-x-4">
+                    <a href="{% url 'event_list' %}" class="btn btn-outline">
+                        {% trans "Annulla" %}
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        {% if form.instance.pk %}
+                            {% trans "Aggiorna" %}
+                        {% else %}
+                            {% trans "Salva" %}
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

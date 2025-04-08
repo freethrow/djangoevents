@@ -1,0 +1,47 @@
+{% extends 'eventi/base.html' %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block title %}{% trans "Accedi" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-8 px-4">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body p-0">
+            <div class="bg-primary text-primary-content px-6 py-4">
+                <h3 class="text-xl font-semibold">{% trans "Accedi" %}</h3>
+            </div>
+            <div class="p-6">
+                {% if form.errors %}
+                    <div class="alert alert-error mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>{% trans "Nome utente o password non validi. Riprova." %}</span>
+                    </div>
+                {% endif %}
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-control mb-4">
+                        <label for="{{ form.username.id_for_label }}" class="label">
+                            <span class="label-text">{% trans "Nome utente" %}</span>
+                        </label>
+                        {{ form.username|add_class:"input input-bordered w-full" }}
+                    </div>
+                    
+                    <div class="form-control mb-6">
+                        <label for="{{ form.password.id_for_label }}" class="label">
+                            <span class="label-text">{% trans "Password" %}</span>
+                        </label>
+                        {{ form.password|add_class:"input input-bordered w-full" }}
+                    </div>
+                    
+                    <input type="hidden" name="next" value="{{ next }}" />
+                    
+                    <button type="submit" class="btn btn-primary w-full">{% trans "Accedi" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
