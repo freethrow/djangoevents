@@ -275,7 +275,7 @@
                                         </div>
                                         <div class="flex space-x-3">
                                             <a href="{{ file.file.url }}" class="link link-primary" target="_blank">{% trans "Scarica" %}</a>
-                                            <form method="post" action="{% url 'delete_file' event.id file.id %}" class="inline">
+                                            <form method="post" action="{% url 'event_file_delete' event_pk=event.id file_pk=file.id %}" class="inline">
                                                 {% csrf_token %}
                                                 <button type="submit" class="link link-error">{% trans "Elimina" %}</button>
                                             </form>

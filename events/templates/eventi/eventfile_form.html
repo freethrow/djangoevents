@@ -1,47 +1,96 @@
 {% extends 'eventi/base.html' %}
 {% load i18n %}
+{% load widget_tweaks %}
 
 {% block title %}{% trans "Aggiungi file a" %} {{ event.titolo }}{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="bg-blue-600 px-6 py-4">
-            <h1 class="text-xl font-bold text-white">
-                {% trans "Aggiungi file a" %}: {{ event.titolo }}
-            </h1>
-        </div>
-        <div class="p-6">
-            <form method="post" enctype="multipart/form-data" class="space-y-6">
+<div class="container mx-auto py-8">
+    <!-- Page header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold">
+            {% trans "Aggiungi file a" %}: {{ event.titolo }}
+        </h1>
+        <p class="mt-2 text-sm opacity-70">
+            {% trans "Carica un nuovo documento allegato all'evento." %}
+        </p>
+    </div>
+
+    <!-- Form card -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 
-                {% for field in form %}
-                <div class="mb-4">
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ field.label }}{% if field.field.required %} *{% endif %}
-                    </label>
-                    
-                    {% if field.errors %}
-                        {% for error in field.errors %}
-                        <p class="text-red-600 text-sm">{{ error }}</p>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    {% if field.help_text %}
-                    <p class="text-gray-500 text-sm mb-1">{{ field.help_text|safe }}</p>
-                    {% endif %}
-                    
-                    <div class="mt-1">
-                        {{ field }}
-                    </div>
+                {% if form.non_field_errors %}
+                <div class="alert alert-error mb-6">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
                 </div>
+                {% endif %}
+                
+                {% for field in form.hidden_fields %}
+                    {{ field }}
                 {% endfor %}
                 
-                <div class="flex justify-end space-x-3 pt-4">
-                    <a href="{% url 'event_detail' pk=event.pk %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <!-- Main Form -->
+                <div class="grid grid-cols-1 gap-6">
+                    <!-- File field -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.file.label }}{% if form.file.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        <div class="bg-base-200 rounded-lg p-4">
+                            {% render_field form.file class="file-input file-input-bordered w-full" %}
+                        </div>
+                        {% for error in form.file.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Title field -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.title.label }}{% if form.title.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.title class="input input-bordered w-full" %}
+                        {% for error in form.title.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Description field -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">
+                                {{ form.description.label }}{% if form.description.field.required %} <span class="text-error">*</span>{% endif %}
+                            </span>
+                        </label>
+                        {% render_field form.description class="textarea textarea-bordered h-32" %}
+                        {% for error in form.description.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ error }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Form actions -->
+                <div class="divider mt-8"></div>
+                <div class="flex justify-end space-x-4">
+                    <a href="{% url 'event_detail' pk=event.pk %}" class="btn btn-outline">
                         {% trans "Annulla" %}
                     </a>
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <button type="submit" class="btn btn-primary">
                         {% trans "Carica" %}
                     </button>
                 </div>
@@ -49,22 +98,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Apply Tailwind CSS classes to all form inputs
-        const inputs = document.querySelectorAll('input:not([type="checkbox"]):not([type="file"]), select, textarea');
-        inputs.forEach(input => {
-            input.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-blue-500', 'focus:ring', 'focus:ring-blue-500', 'focus:ring-opacity-50');
-        });
-        
-        // Style file inputs
-        const fileInputs = document.querySelectorAll('input[type="file"]');
-        fileInputs.forEach(input => {
-            input.classList.add('block', 'w-full', 'text-sm', 'text-gray-500', 'file:mr-4', 'file:py-2', 'file:px-4', 'file:rounded-md', 'file:border-0', 'file:text-sm', 'file:font-semibold', 'file:bg-blue-50', 'file:text-blue-700', 'hover:file:bg-blue-100');
-        });
-    });
-</script>
 {% endblock %}
