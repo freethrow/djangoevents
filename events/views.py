@@ -573,8 +573,9 @@ class GenerateReportView(LoginRequiredMixin, TemplateView):
 
         # Path to your Word template
         template_path = os.path.join(
-            settings.BASE_DIR, "eventi", "templates", "eventi", "report_template.docx"
+            settings.BASE_DIR, "events", "templates", "eventi", "report_template.docx"
         )
+        print(template_path)
 
         # Check if template exists
         if not os.path.exists(template_path):
